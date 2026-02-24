@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LocaNote</title>
+
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h3 class="text-primary mb-4 app-title">
+        <img src="Untitled_design__3_-removebg-preview.png" alt="LocaNote Logo">
+        LocaNote
+    </h3>
+
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <input type="text" id="placeInput" class="form-control" placeholder="Enter place name">
+        </div>
+        <div class="col-md-2">
+            <select id="status" class="form-select">
+                <option value="toVisit">To Visit</option>
+                <option value="visited">Visited</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100" onclick="addPlace()">Add</button>
+        </div>
+        <div class="col-md-3">
+            <input type="text" id="searchInput" class="form-control"
+                   placeholder="Search place..." onkeyup="renderTables()">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-outline-secondary w-100" onclick="toggleSort()">
+                A–Z / Z–A
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h5>🕒 To Visit</h5>
+            <table class="table table-bordered">
+                <thead class="table-warning">
+                    <tr>
+                        <th>Place</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="toVisitTable"></tbody>
+            </table>
+        </div>
+
+        <div class="col-md-6">
+            <h5>✅ Visited</h5>
+            <table class="table table-bordered">
+                <thead class="table-success">
+                    <tr>
+                        <th>Place</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="visitedTable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Place</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="editInput" class="form-control">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

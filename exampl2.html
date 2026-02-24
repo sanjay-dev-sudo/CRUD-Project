@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Travel Places Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-4">
+    <h3 class="text-center text-primary mb-4"><img src="Untitled_design__3_-removebg-preview.png" alt="img" style="width: 80px;height: 80px;">LocaNote</h3>
+
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <input type="text" id="placeInput" class="form-control" placeholder="Enter place name">
+        </div>
+        <div class="col-md-2">
+            <select id="status" class="form-select">
+                <option value="toVisit">To Visit</option>
+                <option value="visited">Visited</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100" onclick="addPlace()">Add</button>
+        </div>
+        <div class="col-md-3">
+            <input type="text" id="searchInput" class="form-control"
+                   placeholder="Search place..." onkeyup="renderTables()">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-outline-secondary w-100" onclick="toggleSort()">
+                A–Z / Z–A
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h5>🕒 To Visit</h5>
+            <table class="table table-bordered">
+                <thead class="table-warning">
+                    <tr>
+                        <th>Place</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="toVisitTable"></tbody>
+            </table>
+        </div>
+
+        <div class="col-md-6">
+            <h5>✅ Visited</h5>
+            <table class="table table-bordered">
+                <thead class="table-success">
+                    <tr>
+                        <th>Place</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="visitedTable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Place</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="editInput" class="form-control">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let places = JSON.parse(localStorage.getItem("places")) || [];
+    let sortAsc = true;
+    let editIndex = null;
+
+    function saveData() {
+        localStorage.setItem("places", JSON.stringify(places));
+    }
+
+    function addPlace() {
+        const placeInput = document.getElementById("placeInput");
+        const status = document.getElementById("status");
+
+        if (placeInput.value.trim() === "") return;
+
+        places.push({ name: placeInput.value.trim(), status: status.value });
+        placeInput.value = "";
+        saveData();
+        renderTables();
+    }
+
+    function toggleSort() {
+        sortAsc = !sortAsc;
+        places.sort((a, b) =>
+            sortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+        );
+        renderTables();
+    }
+
+    function renderTables() {
+        const search = document.getElementById("searchInput").value.toLowerCase();
+        const toVisitTable = document.getElementById("toVisitTable");
+        const visitedTable = document.getElementById("visitedTable");
+
+        toVisitTable.innerHTML = "";
+        visitedTable.innerHTML = "";
+
+        places.forEach((place, index) => {
+            if (!place.name.toLowerCase().startsWith(search)) return;
+
+            const row = document.createElement("tr");
+
+            if (place.status === "toVisit") {
+                row.innerHTML = `
+                    <td>${place.name}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1"
+                            onclick="openEdit(${index})">Edit</button>
+                        <button class="btn btn-sm btn-success me-1"
+                            onclick="moveToVisited(${index})">Visited</button>
+                        <button class="btn btn-sm btn-danger"
+                            onclick="deletePlace(${index})">Delete</button>
+                    </td>
+                `;
+                toVisitTable.appendChild(row);
+            } else {
+                row.innerHTML = `
+                    <td>${place.name}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1"
+                            onclick="openEdit(${index})">Edit</button>
+                        <button class="btn btn-sm btn-secondary me-1"
+                            onclick="moveToToVisit(${index})">Move Back</button>
+                        <button class="btn btn-sm btn-danger"
+                            onclick="deletePlace(${index})">Delete</button>
+                    </td>
+                `;
+                visitedTable.appendChild(row);
+            }
+        });
+    }
+
+    function openEdit(index) {
+        editIndex = index;
+        document.getElementById("editInput").value = places[index].name;
+        new bootstrap.Modal(document.getElementById("editModal")).show();
+    }
+
+    function saveEdit() {
+        const value = document.getElementById("editInput").value.trim();
+        if (value) {
+            places[editIndex].name = value;
+            saveData();
+            renderTables();
+        }
+        bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
+    }
+
+    function moveToVisited(index) {
+        places[index].status = "visited";
+        saveData();
+        renderTables();
+    }
+
+    function moveToToVisit(index) {
+        places[index].status = "toVisit";
+        saveData();
+        renderTables();
+    }
+
+    function deletePlace(index) {
+        if (confirm("Delete this place?")) {
+            places.splice(index, 1);
+            saveData();
+            renderTables();
+        }
+    }
+
+    renderTables();
+</script>
+
+</body>
+</html>
